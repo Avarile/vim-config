@@ -41,19 +41,33 @@ set colorcolumn=+1                " show a guide at textwidth (when set)
 if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit')
   set termguicolors
 endif
-set background=dark
+set background=light               " light terminal; switch to dark and re-run :colorscheme to flip
 
 " Current-row highlight: stronger than the scheme default, re-applied on any colorscheme change
+function! s:CursorLineColors() abort
+  if &background ==# 'light'
+    highlight CursorLine guibg=#dce0e8 ctermbg=254 cterm=underline gui=underline
+    highlight CursorLineNr guifg=#fe640b ctermfg=166 gui=bold cterm=bold
+  else
+    highlight CursorLine guibg=#3a3a4a ctermbg=237 cterm=underline gui=underline
+    highlight CursorLineNr guifg=#ffaf5f ctermfg=215 gui=bold cterm=bold
+  endif
+endfunction
 augroup vimrc_cursorline
   autocmd!
-  autocmd ColorScheme * highlight CursorLine guibg=#3a3a4a ctermbg=237 cterm=underline gui=underline
-        \ | highlight CursorLineNr guifg=#ffaf5f ctermfg=215 gui=bold cterm=bold
+  autocmd ColorScheme * call s:CursorLineColors()
   " Only highlight the row in the active window
   autocmd WinEnter,BufWinEnter * setlocal cursorline
   autocmd WinLeave * setlocal nocursorline
 augroup END
 
-silent! colorscheme habamax
+" catppuccin = Latte on light / Mocha on dark (bundled since Vim 9.2);
+" lunaperche (Vim 9.0+) is the fallback, also light/dark aware
+try
+  colorscheme catppuccin
+catch /^Vim\%((\a\+)\)\=:E185/
+  silent! colorscheme lunaperche
+endtry
 
 " Cursor: bar in insert, underline in replace, block in normal (iTerm/most terminals)
 let &t_SI = "\e[6 q"
