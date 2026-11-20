@@ -43,9 +43,13 @@ if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit'
 endif
 set background=light               " light terminal; switch to dark and re-run :colorscheme to flip
 
-" Current-row highlight: stronger than the scheme default, re-applied on any colorscheme change
-function! s:CursorLineColors() abort
+" Per-background tweaks, re-applied on any colorscheme change:
+" light = keep the terminal's own paper-white background instead of the scheme's grey;
+" current-row highlight stronger than the scheme default
+function! s:LocalColors() abort
   if &background ==# 'light'
+    highlight Normal guibg=NONE ctermbg=NONE
+    highlight TabLineSel guibg=NONE ctermbg=NONE
     highlight CursorLine guibg=#dce0e8 ctermbg=254 cterm=underline gui=underline
     highlight CursorLineNr guifg=#fe640b ctermfg=166 gui=bold cterm=bold
   else
@@ -55,7 +59,7 @@ function! s:CursorLineColors() abort
 endfunction
 augroup vimrc_cursorline
   autocmd!
-  autocmd ColorScheme * call s:CursorLineColors()
+  autocmd ColorScheme * call s:LocalColors()
   " Only highlight the row in the active window
   autocmd WinEnter,BufWinEnter * setlocal cursorline
   autocmd WinLeave * setlocal nocursorline
